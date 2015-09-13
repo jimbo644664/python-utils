@@ -15,20 +15,6 @@ class Tracker:
 
         self.counter = Counter()
 
-    def get_stat(self, story_id):
-        return self.counter[story_id]
-
-    def set_stat(self, story_id, val):
-        self.counter[story_id] = val
-
-    def mod_stat(self, story_id, off):
-        self.counter[story_id] += off
-        if self.counter[story_id] < 0:
-            self.counter[story_id] = 0
-
-    def inc_stat(self, story_id):
-        self.counter[story_id] += 1
-
     def write(self):
         with open(self.DAT_PATH, mode='wb') as file:
             for i in self.counter:
