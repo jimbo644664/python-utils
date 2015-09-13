@@ -1,5 +1,6 @@
 import os
 import io
+from functools import partial
 
 class Tracker:
     def __init__(self, table='tracker', data_dir='./tracker', entry_size=8):
@@ -76,6 +77,7 @@ class Tracker:
         else:
             self.set_row(row_at, (story_id, val))
     
+    
     def mod_stat(self, story_id, off):
         row_at = self.find_story(story_id)    
         if row_at == -1:
@@ -88,7 +90,7 @@ class Tracker:
             if val < 0:
                 raise ValueError("unsigned value required")
             self.set_row(row_at, (story_id, val))
-    
+
     def inc_stat(self, story_id):
         self.mod_stat(story_id, 1)
     
@@ -103,7 +105,7 @@ class Tracker:
     def extract(self, out_file='dump.csv', threshold=0): # creates csv file containing data
         with open(self.DAT_NAME, mode='rb') as file:
             with open(out_file, mode='w') as dump:
-                dump.write("Story ID,Number of hits\n")
+                dump.write("Story ID,Number of Hits\n")
                 while True:
                     chunk = file.read(self.ROW_SIZE)
                     if not chunk:
@@ -113,9 +115,10 @@ class Tracker:
                     val_b = chunk[self.ENTRY_SIZE:self.ROW_SIZE]
                     
                     sid = int.from_bytes(sid_b, byteorder='little')
-                    val = int.from_bytes(sid_b, byteorder='little')
+                    val = int.from_bytes(val_b, byteorder='little')
 
-                    dump.write(str(sid) + ',' + str(val) + '\n')
+                    if val > threshold:
+                        dump.write(str(sid) + ',' + str(val) + '\n')
     
                     
                 
