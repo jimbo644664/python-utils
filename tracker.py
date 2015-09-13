@@ -14,7 +14,7 @@ class Tracker:
         os.chdir(self.DATA_DIR)
         
         if not os.path.exists(self.DAT_NAME):
-            open(self.DAT_NAME, mode='ab').close
+            open(self.DAT_NAME, mode='ab').close()
 
     def set_row(self, row_num, stat_tuple): # stat_tuple in form (story_id, val)
         if (row_num * self.ROW_SIZE) >= os.path.getsize(self.DAT_NAME):
