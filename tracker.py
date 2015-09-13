@@ -3,7 +3,7 @@ import io
 from functools import partial
 
 class Tracker:
-    def __init__(self, table='tracker', entry_size=8, data_dir='./tracker'):
+    def __init__(self, table='tracker', data_dir='./tracker', entry_size=8):
         self.ENTRY_SIZE = entry_size
         self.ROW_SIZE = self.ENTRY_SIZE * 2
         self.DATA_DIR = data_dir
