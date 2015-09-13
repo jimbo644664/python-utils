@@ -9,64 +9,69 @@ class Tracker:
         self.ROW_SIZE = self.ENTRY_SIZE * 2
         self.DATA_DIR = data_dir
         self.DAT_NAME = table + '.dat'
+        self.DAT_PATH = self.DATA_DIR + '/' + self.DAT_NAME
         
         os.makedirs(self.DATA_DIR, exist_ok=True)
-        os.chdir(self.DATA_DIR)
-        
-        if not os.path.exists(self.DAT_NAME):
-            open(self.DAT_NAME, mode='ab').close()
+        if not os.path.exists(self.DAT_PATH):
+            open(self.DAT_PATH, mode='ab').close()
+
+        self.fhandle = open(self.DAT_PATH, mode='rb+')
 
     def set_row(self, row_num, stat_tuple): # stat_tuple in form (story_id, val)
-        if (row_num * self.ROW_SIZE) >= os.path.getsize(self.DAT_NAME):
+        if (row_num * self.ROW_SIZE) >= os.path.getsize(self.DAT_PATH):
             return NOT_FOUND
         
-        with open(self.DAT_NAME, mode='rb+') as file:
-            file.seek(row_num * self.ROW_SIZE, io.SEEK_SET)
+        self.fhandle.seek(row_num * self.ROW_SIZE, io.SEEK_SET)
     
-            file.write(stat_tuple[0].to_bytes(self.ENTRY_SIZE, byteorder='little'))
-            file.write(stat_tuple[1].to_bytes(self.ENTRY_SIZE, byteorder='little'))
-            return 0
+        self.fhandle.write(stat_tuple[0].to_bytes(self.ENTRY_SIZE, byteorder='little'))
+        self.fhandle.write(stat_tuple[1].to_bytes(self.ENTRY_SIZE, byteorder='little'))
+
+        self.fhandle.flush()
+        return 0
     
     def get_row(self, row_num):
-        if (row_num * self.ROW_SIZE) >= os.path.getsize(self.DAT_NAME):
+        if (row_num * self.ROW_SIZE) >= os.path.getsize(self.DAT_PATH):
             return (NOT_FOUND, 0)
         
-        with open(self.DAT_NAME, mode='rb') as file:
-            file.seek(row_num * self.ROW_SIZE, io.SEEK_SET)
+        self.fhandle.seek(row_num * self.ROW_SIZE, io.SEEK_SET)
     
-            story_id_b = file.read(self.ENTRY_SIZE)
-            val_b = file.read(self.ENTRY_SIZE)
+        story_id_b = self.fhandle.read(self.ENTRY_SIZE)
+        val_b = self.fhandle.read(self.ENTRY_SIZE)
     
-            story_id = int.from_bytes(story_id_b, byteorder='little')
-            val = int.from_bytes(val_b, byteorder='little')
-            return (story_id, val) # stat_tuple
+        story_id = int.from_bytes(story_id_b, byteorder='little')
+        val = int.from_bytes(val_b, byteorder='little')
+
+        self.fhandle.flush()
+        return (story_id, val) # stat_tuple
     
     def new_row(self, stat_tuple):
-        with open(self.DAT_NAME, mode='rb+') as file:
-            file.seek(0, io.SEEK_END)
+        self.fhandle.seek(0, io.SEEK_END)
             
-            file.write(stat_tuple[0].to_bytes(self.ENTRY_SIZE, byteorder='little'))
-            file.write(stat_tuple[1].to_bytes(self.ENTRY_SIZE, byteorder='little'))
+        self.fhandle.write(stat_tuple[0].to_bytes(self.ENTRY_SIZE, byteorder='little'))
+        self.fhandle.write(stat_tuple[1].to_bytes(self.ENTRY_SIZE, byteorder='little'))
     
-            return os.path.getsize(self.DAT_NAME) // self.ROW_SIZE # row num created
+        self.fhandle.flush()
+        return os.path.getsize(self.DAT_PATH) // self.ROW_SIZE # row num created
     
     def find_story(self, story_id):
-        with open(self.DAT_NAME, mode='rb') as file:
-            row = 0
-            while True:
-                chunk = file.read(self.ROW_SIZE)
-                if not chunk:
-                    break
+        self.fhandle.seek(0, io.SEEK_SET)
+        row = 0
+        while True:
+            chunk = self.fhandle.read(self.ROW_SIZE)
+            if not chunk:
+                break
                 
-                sid_b = chunk[0:self.ENTRY_SIZE]
-                sid = int.from_bytes(sid_b, byteorder='little')
+            sid_b = chunk[0:self.ENTRY_SIZE]
+            sid = int.from_bytes(sid_b, byteorder='little')
     
-                if sid == story_id:
-                    return row
+            if sid == story_id:
+                self.fhandle.flush()
+                return row
                 
-                row += 1
-    
-            return NOT_FOUND
+            row += 1
+
+        self.fhandle.flush()
+        return NOT_FOUND
     
     def set_stat(self, story_id, val):
         row_at = self.find_story(story_id)
@@ -104,22 +109,22 @@ class Tracker:
             return self.get_row(row_at)[1]
 
     def extract(self, out_file='dump.csv', threshold=0): # creates csv file containing data
-        with open(self.DAT_NAME, mode='rb') as file:
-            with open(out_file, mode='w') as dump:
-                dump.write("Story ID,Number of Hits\n")
-                while True:
-                    chunk = file.read(self.ROW_SIZE)
-                    if not chunk:
-                        break
+        self.fhandle.seek(0, io.SEEK_SET)
+        with open(self.DATA_DIR + '/' + out_file, mode='w') as dump:
+            dump.write("Story ID,Number of Hits\n")
+            while True:
+                chunk = self.fhandle.read(self.ROW_SIZE)
+                if not chunk:
+                    break
                 
-                    sid_b = chunk[0:self.ENTRY_SIZE]
-                    val_b = chunk[self.ENTRY_SIZE:self.ROW_SIZE]
+                sid_b = chunk[0:self.ENTRY_SIZE]
+                val_b = chunk[self.ENTRY_SIZE:self.ROW_SIZE]
                     
-                    sid = int.from_bytes(sid_b, byteorder='little')
-                    val = int.from_bytes(val_b, byteorder='little')
+                sid = int.from_bytes(sid_b, byteorder='little')
+                val = int.from_bytes(val_b, byteorder='little')
 
-                    if val > threshold:
-                        dump.write(str(sid) + ',' + str(val) + '\n')
+                if val > threshold:
+                    dump.write(str(sid) + ',' + str(val) + '\n')
     
                     
                 
