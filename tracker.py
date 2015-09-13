@@ -1,6 +1,5 @@
 import os
 import io
-from functools import partial
 
 class Tracker:
     def __init__(self, table='tracker', data_dir='./tracker', entry_size=8):
