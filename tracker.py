@@ -85,10 +85,10 @@ class Tracker:
             self.new_row((story_id, off))
         else:
             row = self.get_row(row_at)
-            val = row[1]+off
+            val = row[1] + off
             if val < 0:
                 raise ValueError("unsigned value required")
-            self.set_row(row_at, (story_id, row[1]+off))
+            self.set_row(row_at, (story_id, val))
     
     def inc_stat(self, story_id):
         self.mod_stat(story_id, 1)
