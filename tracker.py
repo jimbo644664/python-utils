@@ -1,6 +1,8 @@
 import os
 import io
 
+NOT_FOUND = -1
+
 class Tracker:
     def __init__(self, table='tracker', data_dir='./tracker', entry_size=8):
         self.ENTRY_SIZE = entry_size
@@ -16,7 +18,7 @@ class Tracker:
 
     def set_row(self, row_num, stat_tuple): # stat_tuple in form (story_id, val)
         if (row_num * self.ROW_SIZE) >= os.path.getsize(self.DAT_NAME):
-            return -1
+            return NOT_FOUND
         
         with open(self.DAT_NAME, mode='rb+') as file:
             file.seek(row_num * self.ROW_SIZE, io.SEEK_SET)
@@ -27,7 +29,7 @@ class Tracker:
     
     def get_row(self, row_num):
         if (row_num * self.ROW_SIZE) >= os.path.getsize(self.DAT_NAME):
-            return (-1, 0)
+            return (NOT_FOUND, 0)
         
         with open(self.DAT_NAME, mode='rb') as file:
             file.seek(row_num * self.ROW_SIZE, io.SEEK_SET)
@@ -64,14 +66,14 @@ class Tracker:
                 
                 row += 1
     
-            return -1 # not found
+            return NOT_FOUND
     
     def set_stat(self, story_id, val):
         row_at = self.find_story(story_id)
         if val < 0:
             raise ValueError("unsigned value required")
         
-        if row_at == -1:
+        if row_at == NOT_FOUND:
             self.new_row((story_id, val))
         else:
             self.set_row(row_at, (story_id, val))
@@ -79,7 +81,7 @@ class Tracker:
     
     def mod_stat(self, story_id, off):
         row_at = self.find_story(story_id)    
-        if row_at == -1:
+        if row_at == NOT_FOUND:
             if off < 0:
                 raise ValueError("unsigned value required")
             self.new_row((story_id, off))
@@ -96,7 +98,7 @@ class Tracker:
     def get_stat(self, story_id):
         row_at = self.find_story(story_id)
         
-        if row_at == -1:
+        if row_at == NOT_FOUND:
             return 0
         else:
             return self.get_row(row_at)[1]
