@@ -14,6 +14,7 @@ class Tracker:
             open(self.DAT_PATH, mode='ab').close()
 
         self.counter = Counter()
+        self.read()
 
     def write(self):
         with open(self.DAT_PATH, mode='wb') as file:
