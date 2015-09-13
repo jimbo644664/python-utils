@@ -53,7 +53,7 @@ class Tracker:
         self.fhandle.flush()
         return os.path.getsize(self.DAT_PATH) // self.ROW_SIZE # row num created
     
-    def find_stat(self, story_id):
+    def find_row(self, story_id):
         self.fhandle.seek(0, io.SEEK_SET)
         row = 0
         while True:
@@ -74,7 +74,7 @@ class Tracker:
         return NOT_FOUND
     
     def set_stat(self, story_id, val):
-        row_at = self.find_stat(story_id)
+        row_at = self.find_row(story_id)
         if val < 0:
             raise ValueError("unsigned value required")
         
@@ -85,7 +85,7 @@ class Tracker:
     
     
     def mod_stat(self, story_id, off):
-        row_at = self.find_stat(story_id)    
+        row_at = self.find_row(story_id)    
         if row_at == NOT_FOUND:
             if off < 0:
                 raise ValueError("unsigned value required")
@@ -101,7 +101,7 @@ class Tracker:
         self.mod_stat(story_id, 1)
     
     def get_stat(self, story_id):
-        row_at = self.find_stat(story_id)
+        row_at = self.find_row(story_id)
         
         if row_at == NOT_FOUND:
             return 0
