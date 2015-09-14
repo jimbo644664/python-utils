@@ -16,6 +16,10 @@ class Tracker:
         self.counter = Counter()
         self.read()
 
+    def __del__(self):
+        self.write()
+        self.counter = Counter()
+        
     def write(self):
         with open(self.DAT_PATH, mode='wb') as file:
             for i in self.counter:
@@ -24,16 +28,10 @@ class Tracker:
 
     def read(self):
         with open(self.DAT_PATH, mode='rb') as file:
-            while True:
+            for i in range(0, os.path.getsize(self.DAT_PATH) // self.ROW_SIZE):
                 chunk = file.read(self.ROW_SIZE)
-                if not chunk:
-                    break
-                
-                sid_b = chunk[0:self.ENTRY_SIZE]
-                val_b = chunk[self.ENTRY_SIZE:self.ROW_SIZE]
-                    
-                sid = int.from_bytes(sid_b, byteorder='little')
-                val = int.from_bytes(val_b, byteorder='little')
+                sid = int.from_bytes(chunk[0:self.ENTRY_SIZE], byteorder='little')
+                val = int.from_bytes(chunk[self.ENTRY_SIZE:self.ROW_SIZE], byteorder='little')
 
                 self.counter[sid] = val
 
