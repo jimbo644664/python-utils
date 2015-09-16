@@ -16,7 +16,7 @@ class LinkExtractor(HTMLParser):
         if params:
             self.__trigger += '?'
             for param in order_params(params):
-                self.__trigger += '&' + param[0] + '=' + param[1]
+                self.__trigger += '&' + param[0] + '=' + str(param[1])
 
     def handle_starttag(self, tag, attrs):
         if tag == 'a':
