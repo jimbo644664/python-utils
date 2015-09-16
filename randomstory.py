@@ -22,7 +22,7 @@ lpage = pages[-1]
 random.seed()
 npage = random.randint(1, lpage)
 
-restrict['p'] = str(npage)
+restrict['p'] = npage
 rpage = requests.get(domain+fandoms['Harry Potter'], params=restrict)
 
 l = ffparser.LinkExtractor('/s/')
