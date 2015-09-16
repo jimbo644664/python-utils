@@ -20,9 +20,11 @@ class UserChoice:
             response = str(input(query))
             if response in self.options:
                 if type(self.options) is list:
-                    return response
+                    self.lastresponse = response
+                    return self.lastresponse
                 elif type(self.options) is dict:
-                    return self.options[response]
+                    self.lastresponse = self.options[response]
+                    return self.lastresponse
             else:
-                print("Invalid selection!")
+                print('Invalid selection!')
         return None
