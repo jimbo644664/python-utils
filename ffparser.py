@@ -1,7 +1,5 @@
 from html.parser import HTMLParser
 
-# GET parameters always appear in the same order on ff.net
-# but dicts don't conserve order
 def order_params(params):
     for x in ['srt', 'g1', 'g2', '_g1', 'lan', 'r', 'len', 't', 's',
               'c1', 'c2', 'c3', 'c4', '_c1', '_c2', 'v1', '_v1', 'p']:
@@ -9,6 +7,7 @@ def order_params(params):
             yield (x, params[x])
 
 class LinkExtractor(HTMLParser):
+    
     def __init__(self, lookfor, params={}):
         HTMLParser.__init__(self, convert_charrefs=True)
         self.output_list = []
@@ -26,6 +25,7 @@ class LinkExtractor(HTMLParser):
                 self.output_list.append(link)
 
 class TextExtractor(HTMLParser):
+    
     def __init__(self, lookfor):
         HTMLParser.__init__(self, convert_charrefs=True)
         self.data = ''
