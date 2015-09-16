@@ -29,7 +29,10 @@ class UserChoice:
             if self.timeout-x == 1:
                 query = query.replace('tries', 'try')
             response = input(query)
-            if type(self.options) is range:
+            if response == '':
+                self.lastresponse = self.default_response()
+                return self.lastresponse
+            elif type(self.options) is range:
                 response = int(response)
                 if response in self.options:
                     self.lastresponse = response
@@ -43,4 +46,13 @@ class UserChoice:
                     return self.lastresponse
             else:
                 print('Invalid selection!')
-        return None
+        raise EOFError
+
+    def default_response(self):
+        if type(self.options) is range:
+            return self.options[-1]
+        elif type(self.options) is list:
+            return self.options[0]
+        elif type(self.options) is OrderedDict:
+            for x in self.options:
+                return self.options[x]
