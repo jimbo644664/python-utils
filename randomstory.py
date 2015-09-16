@@ -24,6 +24,7 @@ ratings = OrderedDict([
 ])
 
 length = OrderedDict([
+    ('None', 0),
     ('<1k', 11),
     ('<5k', 51),
     ('>1k', 1),
@@ -47,7 +48,8 @@ uc = inputmod.UserChoice('Rating of fics?', ratings)
 restrict['r'] = uc.prompt()
 
 uc = inputmod.UserChoice('Length of fics?', length)
-restrict['len'] = uc.prompt()
+if uc.prompt() != 0:
+    restrict['len'] = uc.lastresponse
 
 uc = inputmod.UserChoice('Sorted by?', sorts)
 restrict['srt'] = uc.prompt()
