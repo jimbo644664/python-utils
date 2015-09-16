@@ -1,10 +1,10 @@
 from collections import OrderedDict
+from inputmod import UserChoice
+from ffparser import LinkExtractor
 
-import ffparser
 import random
 import requests
 import webbrowser
-import inputmod
 
 domain = 'https://www.fanfiction.net'
 fandoms = {
@@ -44,26 +44,26 @@ sorts = OrderedDict([
     ('Follows', 5),
 ])
 
-uc = inputmod.UserChoice('Rating of fics?', ratings)
+uc = UserChoice('Rating of fics?', ratings)
 restrict['r'] = uc.prompt()
 
-uc = inputmod.UserChoice('Length of fics?', length)
+uc = UserChoice('Length of fics?', length)
 if uc.prompt() != 0:
     restrict['len'] = uc.lastresponse
 
-uc = inputmod.UserChoice('Sorted by?', sorts)
+uc = UserChoice('Sorted by?', sorts)
 restrict['srt'] = uc.prompt()
 
 fpage = requests.get(domain+fandoms['Harry Potter'], params=restrict)
 
-l = ffparser.LinkExtractor(fandoms['Harry Potter'], params=restrict)
+l = LinkExtractor(fandoms['Harry Potter'], params=restrict)
 l.feed(fpage.text)
 
 pages = [int(x.split('&')[-1][2:]) for x in l.output_list]
 pages.sort()
 lpage = pages[-1]
 
-uc = inputmod.UserChoice('First n pages?', range(1, lpage+1))
+uc = UserChoice('First n pages?', range(1, lpage+1))
 lpage = uc.prompt()
 
 random.seed()
@@ -72,7 +72,7 @@ npage = random.randint(1, lpage)
 restrict['p'] = npage
 rpage = requests.get(domain+fandoms['Harry Potter'], params=restrict)
 
-l = ffparser.LinkExtractor('/s/')
+l = LinkExtractor('/s/')
 l.feed(rpage.text)
 
 stories = l.output_list
