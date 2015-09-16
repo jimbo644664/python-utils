@@ -9,7 +9,7 @@ fandoms = {
     'Harry Potter': '/book/Harry-Potter/'
 }
 
-restrict = {'srt': '1', 'lan': '1', 'r': '10'}
+restrict = {'srt': 1, 'lan': 1, 'r': 10, 'len': 100}
 fpage = requests.get(domain+fandoms['Harry Potter'], params=restrict)
 
 l = ffparser.LinkExtractor(fandoms['Harry Potter'], params=restrict)
